@@ -1,143 +1,151 @@
 /* DB다이어그램  https://dbdiagram.io 에서 사용될 ERD 코드 */
-Table User {
-   id bigint [pk]
-   userId varchar(255) [unique]
-   password varchar(255)
-   email varchar(255)
-   profile varchar(255)
-   nick_name varchar2(50)
-   name_tag varchar2(30)
-   created_at datetime
-   updated_at datetime
-   deleted_at datetime
+// 유저 테이블 
+Table user {
+    id bigint [pk]
+    email varchar(255) [unique]
+    password varchar(255) [null]
+    profile varchar(255)
+    nick_name varchar(50)
+    name_tag int(30)
+    sign_type varchar(255) // kakao, google, site(자체 회원가입)
+    created_at datetime
+    updated_at datetime
+    deleted_at datetime
 }
 
 /*
+// 유저 친구 목록 테이블 
 Table user_friends {
-   id bigint [pk]
-   userId bigint [ref: > User.id]
-   friendId bigint
-   friendMemo varchaw(200)
-   created_at datetime
-   updated_at datetime
-   deleted_at datetime
+    id bigint [pk]
+    user_id bigint [ref: > user.id]
+    friend_id bigint
+    friend_memo varchar(200)
+    created_at datetime
+    updated_at datetime
+    deleted_at datetime
 }
 */
 
-
-Table User_Token {                          // 테이블 이름을 대문자로 수정
-   id bigint [pk]
-   userId varchar2(255) [ref: > User.id]   // 참조 관계 명확히
-   fcm varchar2(255)
-   jwt_token varchar2(255)
-   expires_at datetime
-   created_at datetime
+// 유저 토큰 정보 테이블 
+Table user_token {
+    id bigint [pk]
+    user_id bigint [ref: > user.id] 
+    fcm varchar(255) // firebase fcm token
+    jwt_token varchar(255) // jwt refresh token
+    jwt_expires_at datetime // jwt expire
+    created_at datetime
 }
 
-
-Table meeting_info {
-   id bigint [pk]
-   meeting_start_time datetime
-   meeting_end_time datetime
-   user_limit int
-   calculate_type varchar2(100)  // n빵, 분할 결제
-   created_at datetime
-   update_at datetime
+// 모임 정보 테이블 
+Table gathering_info {
+    id bigint [pk]
+    expected_start_time datetime // 예상 시작 시간
+    expected_end_time datetime // 예상 종료 시간
+    title varchar(255) // 모임 제목
+    user_limit int // 방 최대 인원
+    cost_type varchar(100) // n빵, 분할 결제, 시간 비례 결제
+    created_at datetime
+    updated_at datetime
 }
 
-
-Table meeting_location{
- id bigint [pk]
- meeting_info_id long [ref: > meeting_info.id]
- meeting_start_time datetime
- meeting_end_time datetime
- location_order int
- location varchar2(255)
- create_at datetime
+// 모임 장소 테이블 겸 모임 장소 머무른 시간 이력 
+Table gathering_location {
+    id bigint [pk]
+    gathering_info_id bigint [ref: > gathering_info.id]
+    start_time datetime // 시작
+    end_time datetime // 종료
+    ord int // location order
+    location varchar(255) // location name
+    created_at datetime
 }
 
-
-Table meeting_attend{
- id bigint [pk]
- user_id bigint
- meeting_info_id bigint [ref: > meeting_info.id]
- attend_type varchar2(100)
- user_attend_type_id bigint
- attend_start_time datetime
- attend_end_time datetime
- /*
- attend_user2 longtext
- create_at timestamp
- update_at timestamp
- */
-}
-Table user_attend_type{
- id bigint [pk]
- meeting_attend_id bigint [ref: > meeting_attend.id]
- meeting_info_id bigint [ref: > meeting_info.id]
- meeting_location_id bigint [ref: > meeting_location.id]
- drink_type varchar(255)
- user_attend_type_start datetime
- user_attend_type_end datetime
+// 모임 참석자 목록 테이블 
+Table gathering_entry {
+    id bigint [pk]
+    gathering_info_id bigint [ref: > gathering_info.id]
+    user_id bigint [ref: > user.id]
+    attend_type varchar(100)
+    user_attend_type_id bigint
+    created_at timestamp
+    deleted_at timestamp
 }
 
-
-Table meeting_event{
- id bigint [pk]
- meeting_info_id bigint [ref: > meeting_info.id]
- event varchar2(255)
- event_type varchar2(100)
- create_at datetime
+// 음주 계획 기록 테이블 
+Table gathering_drinking_plan {
+    id bigint [pk]
+    gathering_entry_id bigint [ref: > gathering_entry.id]
+    status varchar(255) // DRINKING || NO DRINKING
+    start_time datetime
+    end_time datetime
 }
 
-
-Table location_to_calculate{
- id bigint [pk]
- meeting_location_id bigint [ref: > meeting_location.id]
- memo varchar2(255)
+// 모임 참석 기록 테이블 
+Table gathering_attendance {
+    id bigint [pk]
+    gathering_entry_id bigint [ref: > gathering_entry.id]
+    status varchar(255) // ATTENDED || NOT ATTENDED
+    start_time datetime
+    end_time datetime
 }
 
-
-Table calculate_info{
- id bigint [pk]
- location_to_calculate_id bigint [ref: > location_to_calculate.id]
- user_id bigint [ref: > User.id]
- calculate_detail_id bigint [ref: > calculate_details.id]
- calculate_detail_name varchar(255)
- cost bigint
-
-
+// 모임 이벤트 
+Table gathering_timeline {
+    id bigint [pk]
+    gathering_info_id bigint [ref: > gathering_info.id]
+    description varchar(255) // UI에 표시될 텍스트
+    event_type_code varchar(255)
+    created_at datetime
 }
 
-
-Table meeting_particular{
- id bigint [pk]
- user_id bigint [ref: > User.id]
- meeting_info_id bigint [ref: > meeting_info.id]
- select_particular varchar(255)
-
-
+// 이벤트 코드 
+Table event_type {
+    id int [pk]
+    code varchar(255) [unique, ref: > gathering_timeline.id] // 이벤트 코드
+    fcm_push_yn char(1) [default: 'N'] // fcm 발송 여부
+    description varchar(255)
+    created_at datetime
 }
 
-
-Table calculate_details{
- id bigint [pk]
- calculate_details_type varchar(255)
-
-
+// 비용 그룹 
+Table cost_group {
+    id bigint [pk]
+    gathering_location_id bigint [null, ref: > gathering_location.id] // fk null 가능 장소가 없는 경우 전체 비용으로 취급
+    memo varchar(255) // 비용에 대한 메모
 }
 
-
-Table ocr_images{
- id bigint [pk]
- ocr_image_rink longtext
- create_at datetime
- update_at datetime
+// 비용 세부 
+Table cost_detail {
+    id bigint [pk]
+    cost_group_id bigint [ref: > cost_group.id] // 비용 그룹 아이디
+    user_id bigint [ref: > user.id]
+    cost_item_type_code varchar(255) [ref: > cost_item_type.code, not null]
+    cost_detail_name varchar(255) [not null]
+    cost int [not null]
+    created_at datetime
 }
 
+// 비용 아이템 타입 
+Table cost_item_type {
+    id int [pk]
+    code varchar(255) [unique] // 비용 아이템 코드
+    description varchar(255) // ui에 표시될 설명
+    created_at datetime
+}
 
+// 정산 테이블
+Table settlement {
+    id bigint [pk]
+    gathering_info_id bigint [ref: > gathering_info.id]
+    info longtext  
+    confirm_yn char(1) [default: 'N']
+    cost int [not null]
+    created_at datetime
+}
 
-
-
-
-
+// Ocr 정보 
+Table ocr_images {
+    id bigint [pk]
+    ocr_image_link longtext
+    created_at datetime
+    updated_at datetime
+}
