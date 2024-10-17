@@ -1,0 +1,143 @@
+/* DB다이어그램  https://dbdiagram.io 에서 사용될 ERD 코드 */
+Table User {
+   id bigint [pk]
+   userId varchar(255) [unique]
+   password varchar(255)
+   email varchar(255)
+   profile varchar(255)
+   nick_name varchar2(50)
+   name_tag varchar2(30)
+   created_at datetime
+   updated_at datetime
+   deleted_at datetime
+}
+
+/*
+Table user_friends {
+   id bigint [pk]
+   userId bigint [ref: > User.id]
+   friendId bigint
+   friendMemo varchaw(200)
+   created_at datetime
+   updated_at datetime
+   deleted_at datetime
+}
+*/
+
+
+Table User_Token {                          // 테이블 이름을 대문자로 수정
+   id bigint [pk]
+   userId varchar2(255) [ref: > User.id]   // 참조 관계 명확히
+   fcm varchar2(255)
+   jwt_token varchar2(255)
+   expires_at datetime
+   created_at datetime
+}
+
+
+Table meeting_info {
+   id bigint [pk]
+   meeting_start_time datetime
+   meeting_end_time datetime
+   user_limit int
+   calculate_type varchar2(100)  // n빵, 분할 결제
+   created_at datetime
+   update_at datetime
+}
+
+
+Table meeting_location{
+ id bigint [pk]
+ meeting_info_id long [ref: > meeting_info.id]
+ meeting_start_time datetime
+ meeting_end_time datetime
+ location_order int
+ location varchar2(255)
+ create_at datetime
+}
+
+
+Table meeting_attend{
+ id bigint [pk]
+ user_id bigint
+ meeting_info_id bigint [ref: > meeting_info.id]
+ attend_type varchar2(100)
+ user_attend_type_id bigint
+ attend_start_time datetime
+ attend_end_time datetime
+ /*
+ attend_user2 longtext
+ create_at timestamp
+ update_at timestamp
+ */
+}
+Table user_attend_type{
+ id bigint [pk]
+ meeting_attend_id bigint [ref: > meeting_attend.id]
+ meeting_info_id bigint [ref: > meeting_info.id]
+ meeting_location_id bigint [ref: > meeting_location.id]
+ drink_type varchar(255)
+ user_attend_type_start datetime
+ user_attend_type_end datetime
+}
+
+
+Table meeting_event{
+ id bigint [pk]
+ meeting_info_id bigint [ref: > meeting_info.id]
+ event varchar2(255)
+ event_type varchar2(100)
+ create_at datetime
+}
+
+
+Table location_to_calculate{
+ id bigint [pk]
+ meeting_location_id bigint [ref: > meeting_location.id]
+ memo varchar2(255)
+}
+
+
+Table calculate_info{
+ id bigint [pk]
+ location_to_calculate_id bigint [ref: > location_to_calculate.id]
+ user_id bigint [ref: > User.id]
+ calculate_detail_id bigint [ref: > calculate_details.id]
+ calculate_detail_name varchar(255)
+ cost bigint
+
+
+}
+
+
+Table meeting_particular{
+ id bigint [pk]
+ user_id bigint [ref: > User.id]
+ meeting_info_id bigint [ref: > meeting_info.id]
+ select_particular varchar(255)
+
+
+}
+
+
+Table calculate_details{
+ id bigint [pk]
+ calculate_details_type varchar(255)
+
+
+}
+
+
+Table ocr_images{
+ id bigint [pk]
+ ocr_image_rink longtext
+ create_at datetime
+ update_at datetime
+}
+
+
+
+
+
+
+
