@@ -44,7 +44,7 @@ Table gathering_info {
     title varchar(255) // 모임 제목
     user_limit int // 방 최대 인원
     cost_type varchar(100) // n빵, 분할 결제, 시간 비례 결제
-    creator [ref: > user.id] // 방 생성 유저.
+    creator int [ref: > user.id] // 방 생성 유저.
     created_at datetime
     updated_at datetime
 }
