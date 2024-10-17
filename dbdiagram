@@ -6,7 +6,7 @@ Table user {
     password varchar(255) [null]
     profile varchar(255)
     nick_name varchar(50)
-    name_tag int(30)
+    name_tag int
     sign_type varchar(255) // kakao, google, site(자체 회원가입)
     created_at datetime
     updated_at datetime
@@ -44,6 +44,7 @@ Table gathering_info {
     title varchar(255) // 모임 제목
     user_limit int // 방 최대 인원
     cost_type varchar(100) // n빵, 분할 결제, 시간 비례 결제
+    creator [ref: > user.id] // 방 생성 유저.
     created_at datetime
     updated_at datetime
 }
@@ -64,10 +65,9 @@ Table gathering_entry {
     id bigint [pk]
     gathering_info_id bigint [ref: > gathering_info.id]
     user_id bigint [ref: > user.id]
-    attend_type varchar(100)
-    user_attend_type_id bigint
-    created_at timestamp
-    deleted_at timestamp
+    role varchar(100) // HOST , CO-HOST, PARTICIPANT  참석자에 대한 역할 지정
+    created_at datetime
+    deleted_at datetime     // 정산 기록을 위해 soft delete
 }
 
 // 음주 계획 기록 테이블 
